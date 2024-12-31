@@ -125,39 +125,6 @@ describe('Test Suite', () => {
         //   })
     })
 
-    it('Radio buttons', () => {
-        cy.visit('/')
-        cy.contains('Forms').click()
-        cy.contains('Form Layouts').click()
-        cy.contains('nb-card', 'Using the Grid').find('[type="radio"]').then(radioButtons => {
-            cy.wrap(radioButtons).eq(0).check({ force: true }).should('be.checked')
-            cy.wrap(radioButtons).eq(1).check({ force: true })
-            cy.wrap(radioButtons).eq(0).should('not.be.checked')
-            cy.wrap(radioButtons).eq(2).should('be.disabled')
-        })
-    })
-
-    it('Checkboxes', () => {
-        cy.visit('/')
-        cy.contains('Forms').click()
-        cy.contains('Form Layouts').click()
-        cy.contains('nb-card', 'Using the Grid').find('[type="radio"]').then(radioButtons => {
-            cy.wrap(radioButtons).eq(0).check({ force: true }).should('be.checked')
-            cy.wrap(radioButtons).eq(1).check({ force: true })
-            cy.wrap(radioButtons).eq(0).should('not.be.checked')
-            cy.wrap(radioButtons).eq(2).should('be.disabled')
-        })
-    })
-
-    it('Checkboxes', () => {
-        cy.visit('/')
-        cy.contains('Modal & Overlays').click()
-        cy.contains('Toastr').click()
-        cy.get('[type="checkbox"]').check({ force: true })
-        cy.get('[type="checkbox"]').eq(0).click({ force: true })
-        cy.get('[type="checkbox"]').eq(1).check({ force: true })
-    })
-
     it('Date picker', () => {
 
         function selectDayFromCurrent(day) {
@@ -189,31 +156,9 @@ describe('Test Suite', () => {
         })
     })
 
-    it('Lists and dropdowns', () => {
-        cy.visit('/')
-
-        //1
-        cy.get('nav nb-select').click()
-        cy.get('.options-list').contains('Dark').click()
-        cy.get('nav nb-select').should('contain', 'Dark')
-
-        //2
-        cy.get('nav nb-select').then(dropDown => {
-            cy.wrap(dropDown).click()
-            cy.get('.options-list nb-option').each((listItem, index) => {
-                const itemText = listItem.text().trim()
-                cy.wrap(listItem).click()
-                cy.wrap(dropDown).should('contain', itemText)
-                if (index < 3) {
-                    cy.wrap(dropDown).click()
-                }
-            })
-        })
-    })
-
     // Chapter-28, 29 - Web Tables
 
-    it.only('', () => {
+    it('Web tables', () => {
         cy.visit('/')
         cy.contains('Tables & Data').click()
         cy.contains('Smart Table').click()
@@ -253,5 +198,38 @@ describe('Test Suite', () => {
                 }
             })
         })
+    })
+
+     // Chapter-30 - Popups & Tooltips
+    it('Tooltip', () => {
+        cy.visit('/')
+        cy.contains('Modal & Overlays').click()
+        cy.contains('Tooltip').click()
+        cy.contains('nb-card', 'Colored Tooltips').contains('Default').click()
+        cy.get('nb-tooltip').should('contain', 'This is a tooltip')
+    })
+
+    it.only('Dialog box', () => {
+        cy.visit('/')
+        cy.contains('Tables & Data').click()
+        cy.contains('Smart Table').click()
+
+        //1- Not recommended
+        cy.get('tbody tr').first().find('.nb-trash').click()
+        cy.on('window:confirm', (confirm) => {
+            expect(confirm).to.equal('Are you sure you want to delete?')
+        })
+
+        //2
+        const stub = new stub()
+        cy.on('window:confirm', stub)
+        cy.get('tbody tr').first().find('.nb-trash').click().then( () =>{
+            expect(stub.getCall(0)).to.be.calledWith('Are you sure you want to delete?')
+        })
+
+        //3
+        cy.get('tbody tr').first().find('.nb-trash').click()
+        cy.on('window:confirm', () => false)
+
     })
 })
